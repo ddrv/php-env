@@ -1,0 +1,21 @@
+{
+  "name": "ddrv/env",
+  "type": "library",
+  "description": "Read variables from environment or .env file",
+  "keywords": ["env", ".env", "environment"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Ivan Dudarev",
+      "email": "ivan@ddrv.ru"
+    }
+  ],
+  "require": {
+    "php": ">=7.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Ddrv\\Env\\": "src/"
+    }
+  }
+}
