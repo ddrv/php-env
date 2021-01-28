@@ -59,11 +59,16 @@ class Env
                 if (strpos($line, $this->prefix) !== 0) {
                     continue;
                 }
-                putenv($line);
-                $value = getenv($key);
-                if ($value) {
-                    $this->env[$env] = $value;
+                $arr = explode('=', $line, 2);
+                if (count($arr) !== 2) {
+                    continue;
                 }
+                $var = substr(trim($arr[0]), strlen($this->prefix));
+                $value = trim($arr[1]);
+                if (substr($value, 0, 1) === '"' && substr($value, -1) === '"') {
+                    $value = substr($value, 1, -1);
+                }
+                $this->env[$var] = $value;
             }
             $this->read = true;
         }
