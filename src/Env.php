@@ -56,7 +56,10 @@ class Env
                 if (!$line) {
                     continue;
                 }
-                putenv($this->prefix . $line);
+                if (strpos($line, $this->prefix) !== 0) {
+                    continue;
+                }
+                putenv($line);
                 $value = getenv($key);
                 if ($value) {
                     $this->env[$env] = $value;
