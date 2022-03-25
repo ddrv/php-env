@@ -30,7 +30,7 @@ class Env
     public function __construct(string $file, string $prefix = '')
     {
         $this->file = $file;
-        $this->prefix = $prefix;
+        $this->prefix = trim($prefix);
     }
 
     public function get(string $env, ?string $default = null): ?string
@@ -56,7 +56,7 @@ class Env
                 if (!$line) {
                     continue;
                 }
-                if (strpos($line, $this->prefix) !== 0) {
+                if ($this->prefix !== '' && strpos($line, $this->prefix) !== 0) {
                     continue;
                 }
                 $arr = explode('=', $line, 2);
