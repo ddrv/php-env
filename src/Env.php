@@ -63,7 +63,12 @@ class Env
                 if (count($arr) !== 2) {
                     continue;
                 }
-                $var = substr(trim($arr[0]), strlen($this->prefix));
+                $var = trim($arr[0]);
+                $system = getenv($var);
+                if ($system) {
+                    continue;
+                }
+                $var = substr($var, strlen($this->prefix));
                 $value = trim($arr[1]);
                 if (substr($value, 0, 1) === '"' && substr($value, -1) === '"') {
                     $value = substr($value, 1, -1);
