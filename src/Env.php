@@ -66,6 +66,7 @@ class Env
                 $var = trim($arr[0]);
                 $system = getenv($var);
                 if ($system) {
+                    $this->env[$var] = $system;
                     continue;
                 }
                 $var = substr($var, strlen($this->prefix));
