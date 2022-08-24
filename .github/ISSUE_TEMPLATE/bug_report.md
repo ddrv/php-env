@@ -15,8 +15,8 @@ assignees: ddrv
 
 ### Additional info
 
-| Q                | A
-| ---------------- | ---
-| Package version  | 1.?
-| PHP version      | ?
-| Operating system | ?
+| Q                | A   |
+|------------------|-----|
+| Package version  | 2.? |
+| PHP version      | ?   |
+| Operating system | ?   |
