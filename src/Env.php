@@ -6,7 +6,6 @@ namespace Ddrv\Env;
 
 class Env
 {
-
     /**
      * @var string
      */
