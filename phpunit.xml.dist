@@ -13,5 +13,6 @@
     <php>
         <env name="TEST_VAR_1" value="one" />
         <env name="TEST_VAR_2" value="two" />
+        <env name="TEST_SOURCE" value="env" />
     </php>
 </phpunit>
