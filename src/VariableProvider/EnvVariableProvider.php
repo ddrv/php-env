@@ -17,4 +17,8 @@ final class EnvVariableProvider implements VariableProvider
         }
         return null;
     }
+
+    public function reload(): void
+    {
+    }
 }

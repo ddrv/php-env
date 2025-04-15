@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Ddrv\Env\VariableProvider;
+namespace Tests\Unit\Ddrv\Env\VariableProvider;
 
 use Ddrv\Env\VariableProvider\EnvVariableProvider;
 use Ddrv\Env\VariableProvider\VariableProvider;
 
-class EnvVariableProviderTest extends VariableProviderTestCase
+final class EnvVariableProviderTest extends VariableProviderTestCase
 {
-    public function provideDefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideDefined(): iterable
     {
         return [
             ['TEST_VAR_1', 'one'],
@@ -18,7 +21,10 @@ class EnvVariableProviderTest extends VariableProviderTestCase
         ];
     }
 
-    public function provideUndefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideUndefined(): iterable
     {
         return [
             ['TEST_VAR_3'],

@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Ddrv\Env\VariableProvider;
+namespace Tests\Unit\Ddrv\Env\VariableProvider;
 
 use Ddrv\Env\VariableProvider\FileVariableProvider;
 use Ddrv\Env\VariableProvider\VariableProvider;
 
-class FileVariableProviderTest extends VariableProviderTestCase
+final class FileVariableProviderTest extends VariableProviderTestCase
 {
-    public function provideDefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideDefined(): iterable
     {
         return [
             ['TEST_VAR_3', 'three'],
@@ -18,7 +21,10 @@ class FileVariableProviderTest extends VariableProviderTestCase
         ];
     }
 
-    public function provideUndefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideUndefined(): iterable
     {
         return [
             ['TEST_VAR_1'],
@@ -29,6 +35,8 @@ class FileVariableProviderTest extends VariableProviderTestCase
 
     protected function createProvider(): VariableProvider
     {
-        return new FileVariableProvider(dirname(__DIR__) . DIRECTORY_SEPARATOR . '.env.test');
+        return new FileVariableProvider(
+            dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'fixtures' . DIRECTORY_SEPARATOR . '.env.test'
+        );
     }
 }

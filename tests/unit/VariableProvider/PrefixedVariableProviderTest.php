@@ -2,15 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Tests\Ddrv\Env\VariableProvider;
+namespace Tests\Unit\Ddrv\Env\VariableProvider;
 
 use Ddrv\Env\VariableProvider\MemoryVariableProvider;
 use Ddrv\Env\VariableProvider\PrefixedVariableProvider;
 use Ddrv\Env\VariableProvider\VariableProvider;
 
-class PrefixedVariableProviderTest extends VariableProviderTestCase
+final class PrefixedVariableProviderTest extends VariableProviderTestCase
 {
-    public function provideDefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideDefined(): iterable
     {
         return [
             ['VAR_5', 'five'],
@@ -19,7 +22,10 @@ class PrefixedVariableProviderTest extends VariableProviderTestCase
         ];
     }
 
-    public function provideUndefined(): array
+    /**
+     * @inheritDoc
+     */
+    public static function provideUndefined(): iterable
     {
         return [
             ['TEST_VAR_5'],

@@ -12,4 +12,6 @@ interface VariableProvider
      * @throws SourceUnavailable
      */
     public function get(string $variable): ?string;
+
+    public function reload(): void;
 }

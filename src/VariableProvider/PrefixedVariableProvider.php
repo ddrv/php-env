@@ -6,15 +6,8 @@ namespace Ddrv\Env\VariableProvider;
 
 final class PrefixedVariableProvider implements VariableProvider
 {
-    /**
-     * @var VariableProvider
-     */
-    private $provider;
-
-    /**
-     * @var string
-     */
-    private $prefix;
+    private VariableProvider $provider;
+    private string $prefix;
 
     public function __construct(VariableProvider $provider, string $prefix)
     {
@@ -28,5 +21,10 @@ final class PrefixedVariableProvider implements VariableProvider
     public function get(string $variable): ?string
     {
         return $this->provider->get($this->prefix . $variable);
+    }
+
+    public function reload(): void
+    {
+        $this->provider->reload();
     }
 }

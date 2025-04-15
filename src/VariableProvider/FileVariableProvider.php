@@ -8,20 +8,10 @@ use Ddrv\Env\Exception\SourceUnavailable;
 
 final class FileVariableProvider implements VariableProvider
 {
-    /**
-     * @var string
-     */
-    private $file;
-
-    /**
-     * @var bool
-     */
-    private $read = false;
-
-    /**
-     * @var string[]
-     */
-    private $env = [];
+    private string $file;
+    private bool $read = false;
+    /** @var array<string, string> */
+    private array $env = [];
 
     public function __construct(string $file)
     {
@@ -51,6 +41,10 @@ final class FileVariableProvider implements VariableProvider
         }
 
         $contents = file_get_contents($this->file);
+        if (!is_string($contents)) {
+            throw new SourceUnavailable(sprintf('file %s not readable', $this->file));
+        }
+
         $contents = str_replace("\r", '', $contents);
         $lines = array_map('trim', explode("\n", $contents));
         foreach ($lines as $line) {
@@ -65,7 +59,7 @@ final class FileVariableProvider implements VariableProvider
             $variable = trim($arr[0]);
             $value = trim($arr[1]);
 
-            if (substr($value, 0, 1) === '"' && substr($value, -1) === '"') {
+            if (str_starts_with($value, '"') && str_ends_with($value, '"')) {
                 $value = substr($value, 1, -1);
             }
 
@@ -76,5 +70,11 @@ final class FileVariableProvider implements VariableProvider
             $this->env[$variable] = $value;
         }
         $this->read = true;
+    }
+
+    public function reload(): void
+    {
+        $this->read = false;
+        $this->env = [];
     }
 }

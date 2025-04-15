@@ -6,37 +6,26 @@ namespace Ddrv\Env\VariableProvider;
 
 final class MemoryVariableProvider implements VariableProvider
 {
-    /**
-     * @var string[]
-     */
-    private $env = [];
+    /** @var string[] */
+    private array $env = [];
 
+    /**
+     * @param array<array-key, mixed> $variables
+     */
     public function __construct(array $variables)
     {
         foreach ($variables as $variable => $value) {
             if (!is_string($variable) || !is_string($value)) {
                 continue;
             }
-            $this->set($variable, $value);
-        }
-    }
 
-    public function set(string $variable, string $value): void
-    {
-        $value = trim($value);
-        if ($value === '') {
-            $this->unset($variable);
-            return;
-        }
-        $this->env[$variable] = $value;
-    }
+            $value = trim($value);
+            if ($value === '') {
+                continue;
+            }
 
-    public function unset(string $variable): void
-    {
-        if (!array_key_exists($variable, $this->env)) {
-            return;
+            $this->env[$variable] = $value;
         }
-        unset($this->env[$variable]);
     }
 
     /**
@@ -45,5 +34,9 @@ final class MemoryVariableProvider implements VariableProvider
     public function get(string $variable): ?string
     {
         return $this->env[$variable] ?? null;
+    }
+
+    public function reload(): void
+    {
     }
 }

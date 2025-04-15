@@ -8,31 +8,25 @@ use Ddrv\Env\VariableProvider\VariableProvider;
 
 final class Env
 {
-    /**
-     * @var VariableProvider[]
-     */
-    private $providers;
+    private VariableProvider $provider;
 
-    public function __construct(VariableProvider ...$providers)
+    public function __construct(VariableProvider $variableProvider)
     {
-        $this->providers = $providers;
-    }
-
-    public function withProvider(VariableProvider $provider): self
-    {
-        $that = clone $this;
-        $that->providers[] = $provider;
-        return $that;
+        $this->provider = $variableProvider;
     }
 
     public function get(string $variable, ?string $default = null): ?string
     {
-        foreach ($this->providers as $provider) {
-            $value = $provider->get($variable);
-            if (is_string($value)) {
-                return $value;
-            }
-        }
-        return $default;
+        return $this->provider->get($variable) ?? $default;
+    }
+
+    public function has(string $variable): bool
+    {
+        return !is_null($this->provider->get($variable));
+    }
+
+    public function reload(): void
+    {
+        $this->provider->reload();
     }
 }
