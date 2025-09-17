@@ -5,6 +5,20 @@ All notable changes to ddrv/env are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2025-09-18
+
+### Added
+
+- `\Ddrv\Env\Variable\Variable` class for types cast;
+- `\Ddrv\Env\Env::optional()` method;
+- `\Ddrv\Env\Env::required()` method;
+
+### Removed
+
+- `\Ddrv\Env\Variable\OptionalVariable` class;
+- `\Ddrv\Env\Variable\RequiredVariable` class;
+- `\Ddrv\Env\Env::get()` method;
+
 ## [3.0.0] - 2025-04-15
 
 ### Added

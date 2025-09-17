@@ -19,29 +19,60 @@ final class EnvTest extends TestCase
         'TEST_VAR_2' => 'two',
         'TEST_VAR_3' => 'three',
         'TEST_VAR_4' => 'four',
-        'TEST_VAR_5' => null,
     ];
 
     #[DataProvider('provideVariables')]
-    public function testGet(string $variable, ?string $value): void
+    public function testOptional(string $variable, string $value): void
     {
         $env = $this->getEnv();
-        Assert::assertSame($value, $env->get($variable));
-        if (is_null($value)) {
-            $default = 'default';
-            Assert::assertSame($default, $env->get($variable, $default));
-        }
+
+        $actual = $env->optional($variable);
+        Assert::assertNotNull($actual);
+        Assert::assertSame($value, $actual->string());
     }
 
-    #[DataProvider('provideVariables')]
-    public function testHas(string $variable, ?string $value): void
+    #[DataProvider('provideUndefinedVariables')]
+    public function testOptionalWithUndefinedVariable(string $variable): void
     {
         $env = $this->getEnv();
-        Assert::assertSame(!is_null($value), $env->has($variable));
+        Assert::assertNull($env->optional($variable));
     }
 
     /**
-     * @return array{0: string, 1: string|null}[]
+     * @throws VariableUndefined
+     */
+    #[DataProvider('provideVariables')]
+    public function testRequired(string $variable, string $value): void
+    {
+        $env = $this->getEnv();
+        Assert::assertSame($value, $env->required($variable)->string());
+    }
+
+    #[DataProvider('provideUndefinedVariables')]
+    public function testRequiredWithUndefinedVariable(string $variable): void
+    {
+        $env = $this->getEnv();
+
+        $this->expectException(VariableUndefined::class);
+        $env->required($variable);
+    }
+
+    #[DataProvider('provideVariableNames')]
+    public function testHas(string $variable): void
+    {
+        $env = $this->getEnv();
+        Assert::assertTrue($env->has($variable));
+    }
+
+    #[DataProvider('provideUndefinedVariables')]
+    public function testHasWithUndefinedVariable(string $variable): void
+    {
+        $env = $this->getEnv();
+        Assert::assertFalse($env->has($variable));
+    }
+
+    /**
+     * @return array{0: string, 1: string}[]
      */
     public static function provideVariables(): iterable
     {
@@ -50,15 +81,28 @@ final class EnvTest extends TestCase
         }
     }
 
+    /**
+     * @return array{0: string}[]
+     */
+    public static function provideVariableNames(): iterable
+    {
+        foreach (array_keys(self::ENV) as $variable) {
+            yield [$variable];
+        }
+    }
+
+    /**
+     * @return array{0: string}[]
+     */
+    public static function provideUndefinedVariables(): iterable
+    {
+        foreach (array_keys(self::ENV) as $variable) {
+            yield [sprintf('UNDEFINED_%s', $variable)];
+        }
+    }
+
     private function getEnv(): Env
     {
-        $env = [];
-        foreach (self::ENV as $variable => $value) {
-            if (!is_string($value)) {
-                continue;
-            }
-            $env[$variable] = $value;
-        }
-        return new Env(new MemoryVariableProvider($env));
+        return new Env(new MemoryVariableProvider(self::ENV));
     }
 }

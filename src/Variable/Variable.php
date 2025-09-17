@@ -6,11 +6,12 @@ namespace Ddrv\Env\Variable;
 
 use BackedEnum;
 use Ddrv\Env\Exception\CastTypeError;
+use Stringable;
 use TypeError;
 use UnitEnum;
 use ValueError;
 
-final class RequiredVariable
+final class Variable implements Stringable
 {
     private string $value;
 
@@ -85,7 +86,7 @@ final class RequiredVariable
      * @param class-string<T> $enumClass
      * @return T
      */
-    public function unitEnum(string $enumClass): UnitEnum
+    public function enumByName(string $enumClass): UnitEnum
     {
         if (!is_a($enumClass, UnitEnum::class, true)) {
             $type = class_exists($enumClass) ? sprintf('class-string<%s>', $enumClass) : 'string';
@@ -104,5 +105,10 @@ final class RequiredVariable
         }
 
         throw new CastTypeError(sprintf('Cannot cast "%s" to %s', $this->value, $enumClass));
+    }
+
+    public function __toString(): string
+    {
+        return $this->string();
     }
 }

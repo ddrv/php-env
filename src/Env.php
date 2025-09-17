@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Ddrv\Env;
 
+use Ddrv\Env\Exception\VariableUndefined;
+use Ddrv\Env\Variable\Variable;
 use Ddrv\Env\VariableProvider\VariableProvider;
 
 final class Env
@@ -15,9 +17,25 @@ final class Env
         $this->provider = $variableProvider;
     }
 
-    public function get(string $variable, ?string $default = null): ?string
+    public function optional(string $variable): ?Variable
     {
-        return $this->provider->get($variable) ?? $default;
+        $value = $this->provider->get($variable);
+        if (is_null($value)) {
+            return null;
+        }
+        return new Variable($value);
+    }
+
+    /**
+     * @throws VariableUndefined
+     */
+    public function required(string $variable): Variable
+    {
+        $value = $this->provider->get($variable);
+        if (is_null($value)) {
+            throw new VariableUndefined($variable);
+        }
+        return new Variable($value);
     }
 
     public function has(string $variable): bool

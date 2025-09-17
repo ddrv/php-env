@@ -16,6 +16,15 @@ For example, we have a global array
 $_ENV = [
     'APP_VAR_1' => 'value1',
     'APP_VAR_2' => 'value2',
+    'APP_VAR_BOOL_TRUE' => 'true',
+    'APP_VAR_BOOL_FALSE' => '0',
+    'APP_VAR_INT_ONE' => '1',
+    'APP_VAR_FLOAT_PI' => '3.1415',
+    'APP_VAR_INT_ENUM_ONE' => '1',
+    'APP_VAR_STRING_ENUM_A' => 'a',
+    'APP_VAR_ENUM_FOO' => 'Foo',
+    'APP_VAR_ENUM_STRING_A' => 'A',
+    'APP_VAR_ENUM_INT_1' => 'One',
 ];
 ```
 
@@ -34,13 +43,38 @@ APP_VAR_3=value3
 
 use Ddrv\Env\Env;
 use Ddrv\Env\VariableProvider\EnvVariableProvider;
+use Ddrv\Env\Exception\VariableUndefined;
+use Tests\Code\Ddrv\Env\IntEnum;
+use Tests\Code\Ddrv\Env\StringEnum;
+use Tests\Code\Ddrv\Env\UntypedEnum;
 
 $env = new Env(new EnvVariableProvider());
 
-$env->get('APP_VAR_1'); // returns 'value1'
-$env->get('APP_VAR_2'); // returns 'value2'
-$env->get('APP_VAR_3'); // returns null because $_ENV has not 'APP_VAR_3' key
-$env->get('APP_VAR_3', 'default3'); // returns 'default3' because $_ENV has not 'APP_VAR_3' key but passed parameter $default
+(string)$env->optional('APP_VAR_1'); // returns 'value1'
+(string)$env->optional('APP_VAR_2'); // returns 'value2'
+(string)$env->optional('APP_VAR_3'); // returns null because $_ENV has not 'APP_VAR_3' key
+
+(string)$env->required('APP_VAR_1'); // returns 'value1'
+(string)$env->required('APP_VAR_2'); // returns 'value2'
+$env->required('APP_VAR_3'); // throws VariableUndefined exception because $_ENV has not 'APP_VAR_3' key
+
+/** Cast types */
+$env->optional('APP_VAR_BOOL_FALSE')->bool(); // returns false (allowed strings: 'false', 'off', '0', 'no', '')
+$env->required('APP_VAR_BOOL_TRUE')->bool(); // returns true (allowed strings: 'true', 'on', '1', 'yes')
+$env->required('APP_VAR_INT_ONE')->int(); // returns 1
+$env->required('APP_VAR_FLOAT_PI')->int(); // returns 3.1415
+$env->required('APP_VAR_FLOAT_PI')->string(); // returns "3.1415"
+$env->required('APP_VAR_FLOAT_PI')->__toString(); // returns "3.1415"
+
+$env->required('APP_VAR_INT_ENUM_ONE')->enum(IntEnum::class); // returns IntEnum::One
+$env->required('APP_VAR_STRING_ENUM_A')->enum(StringEnum::class); // returns StringEnum::A
+
+$env->required('APP_VAR_ENUM_FOO')->enumByName(UntypedEnum::class); // returns UntypedEnum::Foo
+$env->required('APP_VAR_ENUM_STRING_A')->enumByName(StringEnum::class); // returns StringEnum::A
+$env->required('APP_VAR_ENUM_INT_1')->enumByName(IntEnum::class); // returns IntEnum::One
+
+/** Default value for optional */
+$env->optional('APP_VAR_3')?->string() ?? 'default'; // returns "default"
 ```
 
 ## dotenv file
@@ -53,8 +87,8 @@ use Ddrv\Env\VariableProvider\FileVariableProvider;
 
 $env = new Env(new FileVariableProvider('/path/to/project/.env'));
 
-$env->get('APP_VAR_1'); // returns null because APP_VAR_3 not defined in /path/to/project/.env file
-$env->get('APP_VAR_3'); // returns 'value3'
+$env->optional('APP_VAR_1'); // returns null because APP_VAR_3 not defined in /path/to/project/.env file
+$env->optional('APP_VAR_3'); // returns 'value3'
 ```
 
 ## Memory
@@ -70,10 +104,10 @@ $variableProvider = new MemoryVariableProvider([
 ])
 $env = new Env($variableProvider);
 
-$env->get('APP_VAR_4'); // returns 'value4'
-$env->get('APP_VAR_5'); // returns null
+$env->optional('APP_VAR_4'); // returns 'value4'
+$env->optional('APP_VAR_5'); // returns null
 $variableProvider->set('APP_VAR_5', 'value5');
-$env->get('APP_VAR_5'); // returns 'value5'
+$env->optional('APP_VAR_5'); // returns 'value5'
 ```
 
 ## Prefixes
@@ -87,8 +121,8 @@ use Ddrv\Env\VariableProvider\PrefixedVariableProvider;
 
 $env = new Env(new PrefixedVariableProvider(new EnvVariableProvider(), 'APP_'));
 
-$env->get('VAR_1'); // returns 'value1'
-$env->get('VAR_3'); // returns null
+$env->optional('VAR_1'); // returns 'value1'
+$env->optional('VAR_3'); // returns null
 ```
 
 ## Resolving variables
@@ -117,12 +151,12 @@ $env = new Env(new ResolveVariableProvider(new MemoryVariableProvider([
     'URL_6' => 'http://localhost:1080/${CYCLED_1}',
 ])));
 
-$env->get('URL_1'); // returns 'http://127.0.0.1:8080/path/to/file'
-$env->get('URL_2'); // returns 'https://localhost:1080/'
-$env->get('URL_3'); // returns 'http://localhost:1080/api/version?token=${TOKEN_1}'
-$env->get('URL_4'); // returns 'http://localhost:1080/api/version?token=\secret'
-$env->get('URL_5'); // throws Ddrv\Env\Exception\VariableUndefined with message 'Variable TOKEN_2 undefined. Token is required.'
-$env->get('URL_6'); // throws \Ddrv\Env\Exception\CyclicalDependencyDetected with message 'Cyclical dependency detected (URL_6 -> CYCLED_1 -> CYCLED_2 -> CYCLED_3 -> CYCLED_1).'
+$env->optional('URL_1'); // returns 'http://127.0.0.1:8080/path/to/file'
+$env->optional('URL_2'); // returns 'https://localhost:1080/'
+$env->optional('URL_3'); // returns 'http://localhost:1080/api/version?token=${TOKEN_1}'
+$env->optional('URL_4'); // returns 'http://localhost:1080/api/version?token=\secret'
+$env->optional('URL_5'); // throws Ddrv\Env\Exception\VariableUndefined with message 'Variable TOKEN_2 undefined. Token is required.'
+$env->optional('URL_6'); // throws \Ddrv\Env\Exception\CyclicalDependencyDetected with message 'Cyclical dependency detected (URL_6 -> CYCLED_1 -> CYCLED_2 -> CYCLED_3 -> CYCLED_1).'
 ```
 
 ## Composite
@@ -147,12 +181,12 @@ $env = new Env(new CompositeVariableProvider(
     ]),
 ));
 
-$env->get('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
-$env->get('APP_VAR_2'); // returns 'value2' because $_ENV has 'APP_VAR_2' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
-$env->get('APP_VAR_3'); // returns 'value3' because APP_VAR_3 defined in /path/to/project/.env file and priority of FileVariableProvider is higher than that of MemoryVariableProvider
-$env->get('APP_VAR_4'); // returns 'other4' because MemoryVariableProvider has 'APP_VAR_4' variable and $_ENV has not 'APP_VAR_4' key and APP_VAR_4 not defined in /path/to/project/.env file
-$env->get('APP_VAR_5'); // returns null because none of the providers contain the variable APP_VAR_5
-$env->get('APP_VAR_5', 'default5'); // returns 'default5'
+$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+$env->optional('APP_VAR_2'); // returns 'value2' because $_ENV has 'APP_VAR_2' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+$env->optional('APP_VAR_3'); // returns 'value3' because APP_VAR_3 defined in /path/to/project/.env file and priority of FileVariableProvider is higher than that of MemoryVariableProvider
+$env->optional('APP_VAR_4'); // returns 'other4' because MemoryVariableProvider has 'APP_VAR_4' variable and $_ENV has not 'APP_VAR_4' key and APP_VAR_4 not defined in /path/to/project/.env file
+$env->optional('APP_VAR_5'); // returns null because none of the providers contain the variable APP_VAR_5
+$env->optional('APP_VAR_5', 'default5'); // returns 'default5'
 ```
 
 ## Caching
@@ -168,10 +202,10 @@ $env = new Env(new CachedVariableProvider(
     new EnvVariableProvider(),
 ));
 
-$env->get('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
 
 putenv('APP_VAR_1=');
-$env->get('APP_VAR_1'); // returns 'value1' because CachedVariableProvider cache this value.
+$env->optional('APP_VAR_1'); // returns 'value1' because CachedVariableProvider cache this value.
 $env->reload();
-$env->get('APP_VAR_1'); // returns '' because reload() method clear cache.
+$env->optional('APP_VAR_1'); // returns '' because reload() method clear cache.
 ```
