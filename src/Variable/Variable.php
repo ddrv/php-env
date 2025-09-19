@@ -63,7 +63,7 @@ final class Variable implements Stringable
      */
     public function enum(string $enumClass): BackedEnum
     {
-        if (!is_a($enumClass, BackedEnum::class, true)) {
+        if (!is_a($enumClass, BackedEnum::class, true)) { // @phpstan-ignore-line
             $type = class_exists($enumClass) ? sprintf('class-string<%s>', $enumClass) : 'string';
             throw new TypeError(sprintf(
                 '%s(): Argument #1 ($enumClass) must be of type class-string<%s>, %s given',
@@ -88,7 +88,7 @@ final class Variable implements Stringable
      */
     public function enumByName(string $enumClass): UnitEnum
     {
-        if (!is_a($enumClass, UnitEnum::class, true)) {
+        if (!is_a($enumClass, UnitEnum::class, true)) { // @phpstan-ignore-line
             $type = class_exists($enumClass) ? sprintf('class-string<%s>', $enumClass) : 'string';
             throw new TypeError(sprintf(
                 '%s(): Argument #1 ($enumClass) must be of type class-string<%s>, %s given',
