@@ -88,7 +88,7 @@ use Ddrv\Env\VariableProvider\FileVariableProvider;
 $env = new Env(new FileVariableProvider('/path/to/project/.env'));
 
 $env->optional('APP_VAR_1'); // returns null because APP_VAR_3 not defined in /path/to/project/.env file
-$env->optional('APP_VAR_3'); // returns 'value3'
+(string)$env->optional('APP_VAR_3'); // returns 'value3'
 ```
 
 ## Memory
@@ -104,10 +104,10 @@ $variableProvider = new MemoryVariableProvider([
 ])
 $env = new Env($variableProvider);
 
-$env->optional('APP_VAR_4'); // returns 'value4'
+(string)$env->optional('APP_VAR_4'); // returns 'value4'
 $env->optional('APP_VAR_5'); // returns null
 $variableProvider->set('APP_VAR_5', 'value5');
-$env->optional('APP_VAR_5'); // returns 'value5'
+(string)$env->optional('APP_VAR_5'); // returns 'value5'
 ```
 
 ## Prefixes
@@ -121,7 +121,7 @@ use Ddrv\Env\VariableProvider\PrefixedVariableProvider;
 
 $env = new Env(new PrefixedVariableProvider(new EnvVariableProvider(), 'APP_'));
 
-$env->optional('VAR_1'); // returns 'value1'
+(string)$env->optional('VAR_1'); // returns 'value1'
 $env->optional('VAR_3'); // returns null
 ```
 
@@ -151,10 +151,10 @@ $env = new Env(new ResolveVariableProvider(new MemoryVariableProvider([
     'URL_6' => 'http://localhost:1080/${CYCLED_1}',
 ])));
 
-$env->optional('URL_1'); // returns 'http://127.0.0.1:8080/path/to/file'
-$env->optional('URL_2'); // returns 'https://localhost:1080/'
-$env->optional('URL_3'); // returns 'http://localhost:1080/api/version?token=${TOKEN_1}'
-$env->optional('URL_4'); // returns 'http://localhost:1080/api/version?token=\secret'
+(string)$env->optional('URL_1'); // returns 'http://127.0.0.1:8080/path/to/file'
+(string)$env->optional('URL_2'); // returns 'https://localhost:1080/'
+(string)$env->optional('URL_3'); // returns 'http://localhost:1080/api/version?token=${TOKEN_1}'
+(string)$env->optional('URL_4'); // returns 'http://localhost:1080/api/version?token=\secret'
 $env->optional('URL_5'); // throws Ddrv\Env\Exception\VariableUndefined with message 'Variable TOKEN_2 undefined. Token is required.'
 $env->optional('URL_6'); // throws \Ddrv\Env\Exception\CyclicalDependencyDetected with message 'Cyclical dependency detected (URL_6 -> CYCLED_1 -> CYCLED_2 -> CYCLED_3 -> CYCLED_1).'
 ```
@@ -181,12 +181,11 @@ $env = new Env(new CompositeVariableProvider(
     ]),
 ));
 
-$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
-$env->optional('APP_VAR_2'); // returns 'value2' because $_ENV has 'APP_VAR_2' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
-$env->optional('APP_VAR_3'); // returns 'value3' because APP_VAR_3 defined in /path/to/project/.env file and priority of FileVariableProvider is higher than that of MemoryVariableProvider
-$env->optional('APP_VAR_4'); // returns 'other4' because MemoryVariableProvider has 'APP_VAR_4' variable and $_ENV has not 'APP_VAR_4' key and APP_VAR_4 not defined in /path/to/project/.env file
+(string)$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+(string)$env->optional('APP_VAR_2'); // returns 'value2' because $_ENV has 'APP_VAR_2' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+(string)$env->optional('APP_VAR_3'); // returns 'value3' because APP_VAR_3 defined in /path/to/project/.env file and priority of FileVariableProvider is higher than that of MemoryVariableProvider
+(string)$env->optional('APP_VAR_4'); // returns 'other4' because MemoryVariableProvider has 'APP_VAR_4' variable and $_ENV has not 'APP_VAR_4' key and APP_VAR_4 not defined in /path/to/project/.env file
 $env->optional('APP_VAR_5'); // returns null because none of the providers contain the variable APP_VAR_5
-$env->optional('APP_VAR_5', 'default5'); // returns 'default5'
 ```
 
 ## Caching
@@ -202,10 +201,10 @@ $env = new Env(new CachedVariableProvider(
     new EnvVariableProvider(),
 ));
 
-$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
+(string)$env->optional('APP_VAR_1'); // returns 'value1' because $_ENV has 'APP_VAR_1' key and priority of EnvVariableProvider is higher than that of MemoryVariableProvider
 
 putenv('APP_VAR_1=');
-$env->optional('APP_VAR_1'); // returns 'value1' because CachedVariableProvider cache this value.
+(string)$env->optional('APP_VAR_1'); // returns 'value1' because CachedVariableProvider cache this value.
 $env->reload();
-$env->optional('APP_VAR_1'); // returns '' because reload() method clear cache.
+(string)$env->optional('APP_VAR_1'); // returns '' because reload() method clear cache.
 ```
